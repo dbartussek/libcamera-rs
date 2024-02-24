@@ -89,32 +89,63 @@ enum libcamera_control_id {
      */
     LIBCAMERA_CONTROL_ID_ANALOGUE_GAIN = 8,
     /**
+     * Set the flicker mode, which determines whether, and how, the AGC/AEC
+     * algorithm attempts to hide flicker effects caused by the duty cycle of
+     * artificial lighting.
+     * 
+     * Although implementation dependent, many algorithms for "flicker
+     * avoidance" work by restricting this exposure time to integer multiples
+     * of the cycle period, wherever possible.
+     * 
+     * Implementations may not support all of the flicker modes listed below.
+     * 
+     * By default the system will start in FlickerAuto mode if this is
+     * supported, otherwise the flicker mode will be set to FlickerOff.
+     */
+    LIBCAMERA_CONTROL_ID_AE_FLICKER_MODE = 9,
+    /**
+     * Manual flicker period in microseconds. This value sets the current flicker period to avoid. It is used when AeFlickerMode is set to FlickerManual.
+     * To cancel 50Hz mains flicker, this should be set to 10000 (corresponding to 100Hz), or 8333 (120Hz) for 60Hz mains.
+     * Setting the mode to FlickerManual when no AeFlickerPeriod has ever been set means that no flicker cancellation occurs (until the value of this control is updated).
+     * Switching to modes other than FlickerManual has no effect on the value of the AeFlickerPeriod control.
+     * \sa AeFlickerMode
+     */
+    LIBCAMERA_CONTROL_ID_AE_FLICKER_PERIOD = 10,
+    /**
+     * Flicker period detected in microseconds. The value reported here indicates the currently detected flicker period, or zero if no flicker at all is detected.
+     * When AeFlickerMode is set to FlickerAuto, there may be a period during which the value reported here remains zero. Once a non-zero value is reported, then this is the flicker period that has been detected and is now being cancelled.
+     * In the case of 50Hz mains flicker, the value would be 10000 (corresponding to 100Hz), or 8333 (120Hz) for 60Hz mains flicker.
+     * It is implementation dependent whether the system can continue to detect flicker of different periods when another frequency is already being cancelled.
+     * \sa AeFlickerMode
+     */
+    LIBCAMERA_CONTROL_ID_AE_FLICKER_DETECTED = 11,
+    /**
      * Specify a fixed brightness parameter. Positive values (up to 1.0)
      * produce brighter images; negative values (up to -1.0) produce darker
      * images and 0.0 leaves pixels unchanged.
      */
-    LIBCAMERA_CONTROL_ID_BRIGHTNESS = 9,
+    LIBCAMERA_CONTROL_ID_BRIGHTNESS = 12,
     /**
      * Specify a fixed contrast parameter. Normal contrast is given by the
      * value 1.0; larger values produce images with more contrast.
      */
-    LIBCAMERA_CONTROL_ID_CONTRAST = 10,
+    LIBCAMERA_CONTROL_ID_CONTRAST = 13,
     /**
      * Report an estimate of the current illuminance level in lux. The Lux
      * control can only be returned in metadata.
      */
-    LIBCAMERA_CONTROL_ID_LUX = 11,
+    LIBCAMERA_CONTROL_ID_LUX = 14,
     /**
      * Enable or disable the AWB.
      * 
      * \sa ColourGains
      */
-    LIBCAMERA_CONTROL_ID_AWB_ENABLE = 12,
+    LIBCAMERA_CONTROL_ID_AWB_ENABLE = 15,
     /**
      * Specify the range of illuminants to use for the AWB algorithm. The modes
      * supported are platform specific, and not all modes may be supported.
      */
-    LIBCAMERA_CONTROL_ID_AWB_MODE = 13,
+    LIBCAMERA_CONTROL_ID_AWB_MODE = 16,
     /**
      * Report the lock status of a running AWB algorithm.
      * 
@@ -124,7 +155,7 @@ enum libcamera_control_id {
      * 
      * \sa AwbEnable
      */
-    LIBCAMERA_CONTROL_ID_AWB_LOCKED = 14,
+    LIBCAMERA_CONTROL_ID_AWB_LOCKED = 17,
     /**
      * Pair of gain values for the Red and Blue colour channels, in that
      * order. ColourGains can only be applied in a Request when the AWB is
@@ -132,24 +163,24 @@ enum libcamera_control_id {
      * 
      * \sa AwbEnable
      */
-    LIBCAMERA_CONTROL_ID_COLOUR_GAINS = 15,
+    LIBCAMERA_CONTROL_ID_COLOUR_GAINS = 18,
     /**
      * Report the current estimate of the colour temperature, in kelvin, for this frame. The ColourTemperature control can only be returned in metadata.
      */
-    LIBCAMERA_CONTROL_ID_COLOUR_TEMPERATURE = 16,
+    LIBCAMERA_CONTROL_ID_COLOUR_TEMPERATURE = 19,
     /**
      * Specify a fixed saturation parameter. Normal saturation is given by
      * the value 1.0; larger values produce more saturated colours; 0.0
      * produces a greyscale image.
      */
-    LIBCAMERA_CONTROL_ID_SATURATION = 17,
+    LIBCAMERA_CONTROL_ID_SATURATION = 20,
     /**
      * Reports the sensor black levels used for processing a frame, in the
      * order R, Gr, Gb, B. These values are returned as numbers out of a 16-bit
      * pixel range (as if pixels ranged from 0 to 65535). The SensorBlackLevels
      * control can only be returned in metadata.
      */
-    LIBCAMERA_CONTROL_ID_SENSOR_BLACK_LEVELS = 18,
+    LIBCAMERA_CONTROL_ID_SENSOR_BLACK_LEVELS = 21,
     /**
      * A value of 0.0 means no sharpening. The minimum value means
      * minimal sharpening, and shall be 0.0 unless the camera can't
@@ -160,17 +191,17 @@ enum libcamera_control_id {
      * not allowed. Note also that sharpening is not applied to raw
      * streams.
      */
-    LIBCAMERA_CONTROL_ID_SHARPNESS = 19,
+    LIBCAMERA_CONTROL_ID_SHARPNESS = 22,
     /**
      * Reports a Figure of Merit (FoM) to indicate how in-focus the frame is.
-     * A larger FocusFoM value indicates a more in-focus frame. This control
-     * depends on the IPA to gather ISP statistics from the defined focus
-     * region, and combine them in a suitable way to generate a FocusFoM value.
-     * In this respect, it is not necessarily aimed at providing a way to
-     * implement a focus algorithm by the application, rather an indication of
-     * how in-focus a frame is.
+     * A larger FocusFoM value indicates a more in-focus frame. This singular
+     * value may be based on a combination of statistics gathered from
+     * multiple focus regions within an image. The number of focus regions and
+     * method of combination is platform dependent. In this respect, it is not
+     * necessarily aimed at providing a way to implement a focus algorithm by
+     * the application, rather an indication of how in-focus a frame is.
      */
-    LIBCAMERA_CONTROL_ID_FOCUS_FO_M = 20,
+    LIBCAMERA_CONTROL_ID_FOCUS_FO_M = 23,
     /**
      * The 3x3 matrix that converts camera RGB to sRGB within the
      * imaging pipeline. This should describe the matrix that is used
@@ -178,7 +209,7 @@ enum libcamera_control_id {
      * transformation. The 3x3 matrix is stored in conventional reading
      * order in an array of 9 floating point values.
      */
-    LIBCAMERA_CONTROL_ID_COLOUR_CORRECTION_MATRIX = 21,
+    LIBCAMERA_CONTROL_ID_COLOUR_CORRECTION_MATRIX = 24,
     /**
      * Sets the image portion that will be scaled to form the whole of
      * the final output image. The (x,y) location of this rectangle is
@@ -190,7 +221,7 @@ enum libcamera_control_id {
      * maximum valid value is given by the properties::ScalerCropMaximum
      * property, and the two can be used to implement digital zoom.
      */
-    LIBCAMERA_CONTROL_ID_SCALER_CROP = 22,
+    LIBCAMERA_CONTROL_ID_SCALER_CROP = 25,
     /**
      * Digital gain value applied during the processing steps applied
      * to the image as captured from the sensor.
@@ -206,16 +237,16 @@ enum libcamera_control_id {
      * step to respect the received gain factor and shall report
      * their total value in the request metadata.
      */
-    LIBCAMERA_CONTROL_ID_DIGITAL_GAIN = 23,
+    LIBCAMERA_CONTROL_ID_DIGITAL_GAIN = 26,
     /**
      * The instantaneous frame duration from start of frame exposure to start
      * of next exposure, expressed in microseconds. This control is meant to
      * be returned in metadata.
      */
-    LIBCAMERA_CONTROL_ID_FRAME_DURATION = 24,
+    LIBCAMERA_CONTROL_ID_FRAME_DURATION = 27,
     /**
-     * The minimum and maximum (in that order) frame duration,
-     * expressed in microseconds.
+     * The minimum and maximum (in that order) frame duration, expressed in
+     * microseconds.
      * 
      * When provided by applications, the control specifies the sensor frame
      * duration interval the pipeline has to use. This limits the largest
@@ -224,7 +255,7 @@ enum libcamera_control_id {
      * the sensor will not be able to raise the exposure time above 33ms.
      * A fixed frame duration is achieved by setting the minimum and maximum
      * values to be the same. Setting both values to 0 reverts to using the
-     * IPA provided defaults.
+     * camera defaults.
      * 
      * The maximum frame duration provides the absolute limit to the shutter
      * speed computed by the AE algorithm and it overrides any exposure mode
@@ -246,7 +277,7 @@ enum libcamera_control_id {
      * \todo Provide an explicit definition of default control values, for
      * this and all other controls.
      */
-    LIBCAMERA_CONTROL_ID_FRAME_DURATION_LIMITS = 25,
+    LIBCAMERA_CONTROL_ID_FRAME_DURATION_LIMITS = 28,
     /**
      * Temperature measure from the camera sensor in Celsius. This is typically
      * obtained by a thermal sensor present on-die or in the camera module. The
@@ -255,7 +286,7 @@ enum libcamera_control_id {
      * The SensorTemperature control will only be returned in metadata if a
      * themal sensor is present.
      */
-    LIBCAMERA_CONTROL_ID_SENSOR_TEMPERATURE = 26,
+    LIBCAMERA_CONTROL_ID_SENSOR_TEMPERATURE = 29,
     /**
      * The time when the first row of the image sensor active array is exposed.
      * 
@@ -268,18 +299,18 @@ enum libcamera_control_id {
      * \todo Define how the sensor timestamp has to be used in the reprocessing
      * use case.
      */
-    LIBCAMERA_CONTROL_ID_SENSOR_TIMESTAMP = 27,
+    LIBCAMERA_CONTROL_ID_SENSOR_TIMESTAMP = 30,
     /**
      * Control to set the mode of the AF (autofocus) algorithm.
      * 
      * An implementation may choose not to implement all the modes.
      */
-    LIBCAMERA_CONTROL_ID_AF_MODE = 28,
+    LIBCAMERA_CONTROL_ID_AF_MODE = 31,
     /**
      * Control to set the range of focus distances that is scanned. An
      * implementation may choose not to implement all the options here.
      */
-    LIBCAMERA_CONTROL_ID_AF_RANGE = 29,
+    LIBCAMERA_CONTROL_ID_AF_RANGE = 32,
     /**
      * Control that determines whether the AF algorithm is to move the lens
      * as quickly as possible or more steadily. For example, during video
@@ -287,12 +318,12 @@ enum libcamera_control_id {
      * when in a preview mode (waiting for a still capture) it may be
      * helpful to move the lens as quickly as is reasonably possible.
      */
-    LIBCAMERA_CONTROL_ID_AF_SPEED = 30,
+    LIBCAMERA_CONTROL_ID_AF_SPEED = 33,
     /**
      * Instruct the AF algorithm how it should decide which parts of the image
      * should be used to measure focus.
      */
-    LIBCAMERA_CONTROL_ID_AF_METERING = 31,
+    LIBCAMERA_CONTROL_ID_AF_METERING = 34,
     /**
      * Sets the focus windows used by the AF algorithm when AfMetering is set
      * to AfMeteringWindows. The units used are pixels within the rectangle
@@ -316,21 +347,21 @@ enum libcamera_control_id {
      * the window where the focal distance for the objects shown in that part
      * of the image are closest to the camera.
      */
-    LIBCAMERA_CONTROL_ID_AF_WINDOWS = 32,
+    LIBCAMERA_CONTROL_ID_AF_WINDOWS = 35,
     /**
      * This control starts an autofocus scan when AfMode is set to AfModeAuto,
      * and can also be used to terminate a scan early.
      * 
      * It is ignored if AfMode is set to AfModeManual or AfModeContinuous.
      */
-    LIBCAMERA_CONTROL_ID_AF_TRIGGER = 33,
+    LIBCAMERA_CONTROL_ID_AF_TRIGGER = 36,
     /**
      * This control has no effect except when in continuous autofocus mode
      * (AfModeContinuous). It can be used to pause any lens movements while
      * (for example) images are captured. The algorithm remains inactive
      * until it is instructed to resume.
      */
-    LIBCAMERA_CONTROL_ID_AF_PAUSE = 34,
+    LIBCAMERA_CONTROL_ID_AF_PAUSE = 37,
     /**
      * Acts as a control to instruct the lens to move to a particular position
      * and also reports back the position of the lens for each frame.
@@ -339,27 +370,29 @@ enum libcamera_control_id {
      * AfModeManual, though the value is reported back unconditionally in all
      * modes.
      * 
-     * The units are a reciprocal distance scale like dioptres but normalised
-     * for the hyperfocal distance. That is, for a lens with hyperfocal
-     * distance H, and setting it to a focal distance D, the lens position LP,
-     * which is generally a non-integer, is given by
+     * This value, which is generally a non-integer, is the reciprocal of the
+     * focal distance in metres, also known as dioptres. That is, to set a
+     * focal distance D, the lens position LP is given by
      * 
-     * \f$LP = \frac{H}{D}\f$
+     * \f$LP = \frac{1\mathrm{m}}{D}\f$
      * 
      * For example:
      * 
      * 0 moves the lens to infinity.
-     * 0.5 moves the lens to twice the hyperfocal distance.
-     * 1 moves the lens to the hyperfocal position.
-     * And larger values will focus the lens ever closer.
+     * 0.5 moves the lens to focus on objects 2m away.
+     * 2 moves the lens to focus on objects 50cm away.
+     * And larger values will focus the lens closer.
      * 
-     * \todo Define a property to report the Hyperforcal distance of calibrated
+     * The default value of the control should indicate a good general position
+     * for the lens, often corresponding to the hyperfocal distance (the
+     * closest position for which objects at infinity are still acceptably
+     * sharp). The minimum will often be zero (meaning infinity), and the
+     * maximum value defines the closest focus position.
+     * 
+     * \todo Define a property to report the Hyperfocal distance of calibrated
      * lenses.
-     * 
-     * \todo Define a property to report the maximum and minimum positions of
-     * this lens. The minimum value will often be zero (meaning infinity).
      */
-    LIBCAMERA_CONTROL_ID_LENS_POSITION = 35,
+    LIBCAMERA_CONTROL_ID_LENS_POSITION = 38,
     /**
      * Reports the current state of the AF algorithm in conjunction with the
      * reported AfMode value and (in continuous AF mode) the AfPauseState
@@ -378,7 +411,7 @@ enum libcamera_control_id {
      * If the AfMode is set to AfModeContinuous then the AfState will initially
      * report AfStateScanning.
      */
-    LIBCAMERA_CONTROL_ID_AF_STATE = 36,
+    LIBCAMERA_CONTROL_ID_AF_STATE = 39,
     /**
      * Only applicable in continuous (AfModeContinuous) mode, this reports
      * whether the algorithm is currently running, paused or pausing (that is,
@@ -386,7 +419,34 @@ enum libcamera_control_id {
      * 
      * Any change to AfMode will cause AfPauseStateRunning to be reported.
      */
-    LIBCAMERA_CONTROL_ID_AF_PAUSE_STATE = 37,
+    LIBCAMERA_CONTROL_ID_AF_PAUSE_STATE = 40,
+    /**
+     * Control to set the mode to be used for High Dynamic Range (HDR)
+     * imaging. HDR techniques typically include multiple exposure, image
+     * fusion and tone mapping techniques to improve the dynamic range of the
+     * resulting images.
+     * 
+     * When using an HDR mode, images are captured with different sets of AGC
+     * settings called HDR channels. Channels indicate in particular the type
+     * of exposure (short, medium or long) used to capture the raw image,
+     * before fusion. Each HDR image is tagged with the corresponding channel
+     * using the HdrChannel control.
+     * 
+     * \sa HdrChannel
+     */
+    LIBCAMERA_CONTROL_ID_HDR_MODE = 41,
+    /**
+     * This value is reported back to the application so that it can discover
+     * whether this capture corresponds to the short or long exposure image (or
+     * any other image used by the HDR procedure). An application can monitor
+     * the HDR channel to discover when the differently exposed images have
+     * arrived.
+     * 
+     * This metadata is only available when an HDR mode has been enabled.
+     * 
+     * \sa HdrMode
+     */
+    LIBCAMERA_CONTROL_ID_HDR_CHANNEL = 42,
     /**
      * Control for AE metering trigger. Currently identical to
      * ANDROID_CONTROL_AE_PRECAPTURE_TRIGGER.
@@ -394,51 +454,46 @@ enum libcamera_control_id {
      * Whether the camera device will trigger a precapture metering sequence
      * when it processes this request.
      */
-    LIBCAMERA_CONTROL_ID_AE_PRECAPTURE_TRIGGER = 38,
+    LIBCAMERA_CONTROL_ID_AE_PRECAPTURE_TRIGGER = 43,
     /**
      * Control to select the noise reduction algorithm mode. Currently
      * identical to ANDROID_NOISE_REDUCTION_MODE.
      * 
      *  Mode of operation for the noise reduction algorithm.
      */
-    LIBCAMERA_CONTROL_ID_NOISE_REDUCTION_MODE = 39,
+    LIBCAMERA_CONTROL_ID_NOISE_REDUCTION_MODE = 44,
     /**
      * Control to select the color correction aberration mode. Currently
      * identical to ANDROID_COLOR_CORRECTION_ABERRATION_MODE.
      * 
      *  Mode of operation for the chromatic aberration correction algorithm.
      */
-    LIBCAMERA_CONTROL_ID_COLOR_CORRECTION_ABERRATION_MODE = 40,
+    LIBCAMERA_CONTROL_ID_COLOR_CORRECTION_ABERRATION_MODE = 45,
     /**
      * Control to report the current AE algorithm state. Currently identical to
      * ANDROID_CONTROL_AE_STATE.
      * 
      *  Current state of the AE algorithm.
      */
-    LIBCAMERA_CONTROL_ID_AE_STATE = 41,
+    LIBCAMERA_CONTROL_ID_AE_STATE = 46,
     /**
      * Control to report the current AWB algorithm state. Currently identical
      * to ANDROID_CONTROL_AWB_STATE.
      * 
      *  Current state of the AWB algorithm.
      */
-    LIBCAMERA_CONTROL_ID_AWB_STATE = 42,
+    LIBCAMERA_CONTROL_ID_AWB_STATE = 47,
     /**
      * Control to report the time between the start of exposure of the first
      * row and the start of exposure of the last row. Currently identical to
      * ANDROID_SENSOR_ROLLING_SHUTTER_SKEW
      */
-    LIBCAMERA_CONTROL_ID_SENSOR_ROLLING_SHUTTER_SKEW = 43,
+    LIBCAMERA_CONTROL_ID_SENSOR_ROLLING_SHUTTER_SKEW = 48,
     /**
      * Control to report if the lens shading map is available. Currently
      * identical to ANDROID_STATISTICS_LENS_SHADING_MAP_MODE.
      */
-    LIBCAMERA_CONTROL_ID_LENS_SHADING_MAP_MODE = 44,
-    /**
-     * Control to report the detected scene light frequency. Currently
-     * identical to ANDROID_STATISTICS_SCENE_FLICKER.
-     */
-    LIBCAMERA_CONTROL_ID_SCENE_FLICKER = 45,
+    LIBCAMERA_CONTROL_ID_LENS_SHADING_MAP_MODE = 49,
     /**
      * Specifies the number of pipeline stages the frame went through from when
      * it was exposed to when the final completed result was available to the
@@ -451,7 +506,7 @@ enum libcamera_control_id {
      * detection, additional format conversions etc) count as an additional
      * pipeline stage.
      */
-    LIBCAMERA_CONTROL_ID_PIPELINE_DEPTH = 46,
+    LIBCAMERA_CONTROL_ID_PIPELINE_DEPTH = 50,
     /**
      * The maximum number of frames that can occur after a request (different
      * than the previous) has been submitted, and before the result's state
@@ -459,12 +514,12 @@ enum libcamera_control_id {
      * indicates per-frame control. Currently identical to
      * ANDROID_SYNC_MAX_LATENCY.
      */
-    LIBCAMERA_CONTROL_ID_MAX_LATENCY = 47,
+    LIBCAMERA_CONTROL_ID_MAX_LATENCY = 51,
     /**
      * Control to select the test pattern mode. Currently identical to
      * ANDROID_SENSOR_TEST_PATTERN_MODE.
      */
-    LIBCAMERA_CONTROL_ID_TEST_PATTERN_MODE = 48,
+    LIBCAMERA_CONTROL_ID_TEST_PATTERN_MODE = 52,
 };
 
 /**
@@ -534,6 +589,24 @@ enum libcamera_ae_exposure_mode {
 };
 
 /**
+ * \brief Supported values for LIBCAMERA_CONTROL_ID_AE_FLICKER_MODE
+ */
+enum libcamera_ae_flicker_mode {
+    /**
+     * No flicker avoidance is performed.
+     */
+    LIBCAMERA_FLICKER_OFF = 0,
+    /**
+     * Manual flicker avoidance. Suppress flicker effects caused by lighting running with a period specified by the AeFlickerPeriod control. \sa AeFlickerPeriod
+     */
+    LIBCAMERA_FLICKER_MANUAL = 1,
+    /**
+     * Automatic flicker period detection and avoidance. The system will automatically determine the most likely value of flicker period, and avoid flicker of this frequency. Once flicker is being corrected, it is implementation dependent whether the system is still able to detect a change in the flicker period. \sa AeFlickerDetected
+     */
+    LIBCAMERA_FLICKER_AUTO = 2,
+};
+
+/**
  * \brief Supported values for LIBCAMERA_CONTROL_ID_AWB_MODE
  */
 enum libcamera_awb_mode {
@@ -582,6 +655,13 @@ enum libcamera_af_mode {
      * LensPosition control.
      * 
      * In this mode the AfState will always report AfStateIdle.
+     * 
+     * If the camera is started in AfModeManual, it will move the focus
+     * lens to the position specified by the LensPosition control.
+     * 
+     * This mode is the recommended default value for the AfMode control.
+     * External cameras (as reported by the Location property set to
+     * CameraLocationExternal) may use a different default value.
      */
     LIBCAMERA_AF_MODE_MANUAL = 0,
     /**
@@ -780,6 +860,75 @@ enum libcamera_af_pause_state {
 };
 
 /**
+ * \brief Supported values for LIBCAMERA_CONTROL_ID_HDR_MODE
+ */
+enum libcamera_hdr_mode {
+    /**
+     * HDR is disabled. Metadata for this frame will not include the
+     * HdrChannel control.
+     */
+    LIBCAMERA_HDR_MODE_OFF = 0,
+    /**
+     * Multiple exposures will be generated in an alternating fashion.
+     * However, they will not be merged together and will be returned to
+     * the application as they are. Each image will be tagged with the
+     * correct HDR channel, indicating what kind of exposure it is. The
+     * tag should be the same as in the HdrModeMultiExposure case.
+     * 
+     * The expectation is that an application using this mode would merge
+     * the frames to create HDR images for itself if it requires them.
+     */
+    LIBCAMERA_HDR_MODE_MULTI_EXPOSURE_UNMERGED = 1,
+    /**
+     * Multiple exposures will be generated and merged to create HDR
+     * images. Each image will be tagged with the HDR channel (long, medium
+     * or short) that arrived and which caused this image to be output.
+     * 
+     * Systems that use two channels for HDR will return images tagged
+     * alternately as the short and long channel. Systems that use three
+     * channels for HDR will cycle through the short, medium and long
+     * channel before repeating.
+     */
+    LIBCAMERA_HDR_MODE_MULTI_EXPOSURE = 2,
+    /**
+     * Multiple frames all at a single exposure will be used to create HDR
+     * images. These images should be reported as all corresponding to the
+     * HDR short channel.
+     */
+    LIBCAMERA_HDR_MODE_SINGLE_EXPOSURE = 3,
+    /**
+     * Multiple frames will be combined to produce "night mode" images. It
+     * is up to the implementation exactly which HDR channels it uses, and
+     * the images will all be tagged accordingly with the correct HDR
+     * channel information.
+     */
+    LIBCAMERA_HDR_MODE_NIGHT = 4,
+};
+
+/**
+ * \brief Supported values for LIBCAMERA_CONTROL_ID_HDR_CHANNEL
+ */
+enum libcamera_hdr_channel {
+    /**
+     * This image does not correspond to any of the captures used to create
+     * an HDR image.
+     */
+    LIBCAMERA_HDR_CHANNEL_NONE = 0,
+    /**
+     * This is a short exposure image.
+     */
+    LIBCAMERA_HDR_CHANNEL_SHORT = 1,
+    /**
+     * This is a medium exposure image.
+     */
+    LIBCAMERA_HDR_CHANNEL_MEDIUM = 2,
+    /**
+     * This is a long exposure image.
+     */
+    LIBCAMERA_HDR_CHANNEL_LONG = 3,
+};
+
+/**
  * \brief Supported values for LIBCAMERA_CONTROL_ID_AE_PRECAPTURE_TRIGGER
  */
 enum libcamera_ae_precapture_trigger {
@@ -911,24 +1060,6 @@ enum libcamera_lens_shading_map_mode {
 };
 
 /**
- * \brief Supported values for LIBCAMERA_CONTROL_ID_SCENE_FLICKER
- */
-enum libcamera_scene_flicker {
-    /**
-     * No flickering detected.
-     */
-    LIBCAMERA_SCENE_FICKER_OFF = 0,
-    /**
-     * 50Hz flickering detected.
-     */
-    LIBCAMERA_SCENE_FICKER_50HZ = 1,
-    /**
-     * 60Hz flickering detected.
-     */
-    LIBCAMERA_SCENE_FICKER_60HZ = 2,
-};
-
-/**
  * \brief Supported values for LIBCAMERA_CONTROL_ID_TEST_PATTERN_MODE
  */
 enum libcamera_test_pattern_mode {
@@ -990,10 +1121,10 @@ enum libcamera_property_id {
      */
     LIBCAMERA_CONTROL_ID_LOCATION = 1,
     /**
-     * The camera rotation is expressed as the angular difference in degrees
-     * between two reference systems, one relative to the camera module, and
-     * one defined on the external world scene to be captured when projected
-     * on the image sensor pixel array.
+     * The camera physical mounting rotation. It is expressed as the angular
+     * difference in degrees between two reference systems, one relative to the
+     * camera module, and one defined on the external world scene to be
+     * captured when projected on the image sensor pixel array.
      * 
      * A camera sensor has a 2-dimensional reference system 'Rc' defined by
      * its pixel array read-out order. The origin is set to the first pixel
@@ -1644,11 +1775,19 @@ enum libcamera_property_id {
      */
     LIBCAMERA_CONTROL_ID_SENSOR_SENSITIVITY = 9,
     /**
+     * A list of integer values of type dev_t denoting the major and minor
+     * device numbers of the underlying devices used in the operation of this
+     * camera.
+     * 
+     * Different cameras may report identical devices.
+     */
+    LIBCAMERA_CONTROL_ID_SYSTEM_DEVICES = 10,
+    /**
      * The arrangement of color filters on sensor; represents the colors in the
      * top-left 2x2 section of the sensor, in reading order. Currently
      * identical to ANDROID_SENSOR_INFO_COLOR_FILTER_ARRANGEMENT.
      */
-    LIBCAMERA_CONTROL_ID_COLOR_FILTER_ARRANGEMENT = 10,
+    LIBCAMERA_CONTROL_ID_COLOR_FILTER_ARRANGEMENT = 11,
 };
 
 /**

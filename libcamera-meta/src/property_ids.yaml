@@ -4,6 +4,7 @@
 #
 %YAML 1.1
 ---
+vendor: libcamera
 controls:
   - Location:
       type: int32_t
@@ -29,10 +30,10 @@ controls:
   - Rotation:
       type: int32_t
       description: |
-        The camera rotation is expressed as the angular difference in degrees
-        between two reference systems, one relative to the camera module, and
-        one defined on the external world scene to be captured when projected
-        on the image sensor pixel array.
+        The camera physical mounting rotation. It is expressed as the angular
+        difference in degrees between two reference systems, one relative to the
+        camera module, and one defined on the external world scene to be
+        captured when projected on the image sensor pixel array.
 
         A camera sensor has a 2-dimensional reference system 'Rc' defined by
         its pixel array read-out order. The origin is set to the first pixel
@@ -690,6 +691,15 @@ controls:
         that is twice that of the full resolution mode. This value will be valid
         after the configure method has returned successfully.
 
+  - SystemDevices:
+      type: int64_t
+      size: [n]
+      description: |
+        A list of integer values of type dev_t denoting the major and minor
+        device numbers of the underlying devices used in the operation of this
+        camera.
+
+        Different cameras may report identical devices.
   # ----------------------------------------------------------------------------
   # Draft properties section
 

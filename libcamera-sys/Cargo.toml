@@ -1,6 +1,6 @@
 [package]
 name = "libcamera-sys"
-version = "0.2.3"
+version = "0.3.0"
 edition = "2021"
 description = "Low-level unsafe bindings to libcamera"
 documentation = "https://docs.rs/libcamera-sys"
@@ -18,5 +18,5 @@ doctest = false
 
 [build-dependencies]
 bindgen = "0.66.1"
-pkg-config = "0.3.26"
 cc = "1.0"
+pkg-config = "0.3.26"

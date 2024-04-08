@@ -1,0 +1,2 @@
+
+#include <libcamera/version.h>

@@ -2,4 +2,7 @@
 /Cargo.lock
 
 .vscode/
+.idea
 !.vscode/settings.json
+
+/libcamera-git

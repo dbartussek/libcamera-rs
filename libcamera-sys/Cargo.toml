@@ -14,6 +14,10 @@ readme = "../README.md"
 # libcamera comments are interpreted as rust code blocks failing the doctest
 doctest = false
 
+[features]
+default = ["link_library"]
+link_library = []
+
 [dependencies]
 
 [build-dependencies]

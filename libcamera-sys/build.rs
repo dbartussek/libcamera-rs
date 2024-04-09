@@ -19,8 +19,6 @@ fn main() {
         .get(0)
         .expect("Unable to get libcamera include path");
 
-    println!("cargo:rustc-link-lib=camera");
-
     let mut c_api_headers: Vec<PathBuf> = Vec::new();
     let mut cpp_api_headers: Vec<PathBuf> = Vec::new();
     let mut c_api_sources: Vec<PathBuf> = Vec::new();
@@ -47,13 +45,6 @@ fn main() {
     {
         println!("cargo:rerun-if-changed={}", file.display());
     }
-
-    cc::Build::new()
-        .cpp(true)
-        .flag("-std=c++17")
-        .files(c_api_sources)
-        .include(libcamera_include_path)
-        .compile("camera_c_api");
 
     // C bindings
     let mut builder = bindgen::Builder::default()
@@ -88,4 +79,19 @@ fn main() {
     bindings
         .write_to_file(out_path.join("bindings_cpp.rs"))
         .expect("Couldn't write bindings!");
+
+    // Only link to libcamera and build the c api if the feature is enabled.
+    // This is to help with cross compilation and doc generation
+    if !cfg!(feature = "link_library") {
+        return;
+    }
+
+    println!("cargo:rustc-link-lib=camera");
+
+    cc::Build::new()
+        .cpp(true)
+        .flag("-std=c++17")
+        .files(c_api_sources)
+        .include(libcamera_include_path)
+        .compile("camera_c_api");
 }

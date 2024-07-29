@@ -22,6 +22,46 @@ libcamera_camera_configuration_status_t libcamera_camera_configuration_validate(
     return config->validate();
 }
 
+void libcamera_camera_configuration_clear_sensor_config(libcamera_camera_configuration_t* config) {
+    config->sensorConfig.reset();
+}
+
+void libcamera_camera_configuration_set_sensor_config(
+    libcamera_camera_configuration_t* config,
+    const libcamera_sensor_configuration_t* sensor_config
+) {
+    config->sensorConfig = *sensor_config;
+}
+
+libcamera_sensor_configuration_t* libcamera_sensor_configuration_new() {
+    return new libcamera_sensor_configuration_t();
+}
+
+void libcamera_sensor_configuration_set_size(
+    libcamera_sensor_configuration_t* config,
+    unsigned int width, unsigned int height
+) {
+    config->outputSize.width = width;
+    config->outputSize.height = height;
+}
+
+void libcamera_sensor_configuration_set_bit_depth(
+    libcamera_sensor_configuration_t* config,
+    unsigned int bit_depth
+) {
+    config->bitDepth = bit_depth;
+}
+
+bool libcamera_sensor_configuration_validate(const libcamera_sensor_configuration_t* config) {
+    return config->isValid();
+}
+
+void libcamera_sensor_configuration_destroy(libcamera_sensor_configuration_t* config) {
+    delete config;
+}
+
+
+
 libcamera_camera_t* libcamera_camera_copy(libcamera_camera_t *cam) {
     const libcamera_camera_t& ptr = *cam;
     return new libcamera_camera_t(ptr);

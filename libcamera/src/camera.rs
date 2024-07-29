@@ -1,6 +1,6 @@
 use std::{
     collections::HashMap,
-    ffi::CStr,
+    ffi::{c_uint, CStr},
     io,
     marker::PhantomData,
     ops::{Deref, DerefMut},
@@ -12,6 +12,7 @@ use libcamera_sys::*;
 
 use crate::{
     control::{ControlInfoMap, ControlList, PropertyList},
+    geometry::Size,
     request::Request,
     stream::{StreamConfigurationRef, StreamRole},
     utils::Immutable,
@@ -103,6 +104,13 @@ impl CameraConfiguration {
             .try_into()
             .unwrap()
     }
+
+    pub fn set_sensor_configuration(&mut self, sensor_config: SensorConfiguration) {
+        unsafe { libcamera_camera_configuration_set_sensor_config(self.ptr.as_ptr(), sensor_config.ptr.as_ptr()) }
+    }
+    pub fn clear_sensor_configuration(&mut self) {
+        unsafe { libcamera_camera_configuration_clear_sensor_config(self.ptr.as_ptr()) }
+    }
 }
 
 impl core::fmt::Debug for CameraConfiguration {
@@ -118,6 +126,35 @@ impl core::fmt::Debug for CameraConfiguration {
 impl Drop for CameraConfiguration {
     fn drop(&mut self) {
         unsafe { libcamera_camera_configuration_destroy(self.ptr.as_ptr()) }
+    }
+}
+
+pub struct SensorConfiguration {
+    ptr: NonNull<libcamera_sensor_configuration_t>,
+}
+impl SensorConfiguration {
+    pub fn new() -> Self {
+        Self {
+            ptr: NonNull::new(unsafe { libcamera_sensor_configuration_new() }).unwrap(),
+        }
+    }
+
+    pub fn set_size(&mut self, size: Size) {
+        unsafe {
+            libcamera_sensor_configuration_set_size(self.ptr.as_ptr(), size.width as c_uint, size.height as c_uint)
+        }
+    }
+    pub fn set_bit_depth(&mut self, depth: u32) {
+        unsafe { libcamera_sensor_configuration_set_bit_depth(self.ptr.as_ptr(), depth as c_uint) }
+    }
+
+    pub fn validate(&self) -> bool {
+        unsafe { libcamera_sensor_configuration_validate(self.ptr.as_ptr()) }
+    }
+}
+impl Drop for SensorConfiguration {
+    fn drop(&mut self) {
+        unsafe { libcamera_sensor_configuration_destroy(self.ptr.as_ptr()) }
     }
 }
 

@@ -21,12 +21,18 @@ typedef void libcamera_request_completed_cb_t(void*, libcamera_request_t*);
 
 typedef libcamera::CameraConfiguration libcamera_camera_configuration_t;
 typedef libcamera::CameraConfiguration::Status libcamera_camera_configuration_status_t;
+
+typedef libcamera::SensorConfiguration libcamera_sensor_configuration_t;
+
 typedef std::shared_ptr<libcamera::Camera> libcamera_camera_t;
 
 extern "C" {
 #else
 typedef enum libcamera_camera_configuration_status libcamera_camera_configuration_status_t;
 typedef struct libcamera_camera_configuration_t libcamera_camera_configuration_t;
+
+typedef struct libcamera_sensor_configuration_t libcamera_sensor_configuration_t;
+
 typedef struct libcamera_camera_t libcamera_camera_t;
 #endif
 
@@ -34,6 +40,27 @@ void libcamera_camera_configuration_destroy(libcamera_camera_configuration_t* co
 size_t libcamera_camera_configuration_size(const libcamera_camera_configuration_t* config);
 libcamera_stream_configuration_t *libcamera_camera_configuration_at(libcamera_camera_configuration_t* config, size_t index);
 libcamera_camera_configuration_status_t libcamera_camera_configuration_validate(libcamera_camera_configuration_t* config);
+
+
+void libcamera_camera_configuration_set_sensor_config(
+    libcamera_camera_configuration_t* config,
+    const libcamera_sensor_configuration_t* sensor_config
+);
+void libcamera_camera_configuration_clear_sensor_config(libcamera_camera_configuration_t* config);
+
+
+libcamera_sensor_configuration_t* libcamera_sensor_configuration_new();
+void libcamera_sensor_configuration_set_size(
+    libcamera_sensor_configuration_t* config,
+    unsigned int width, unsigned int height
+);
+void libcamera_sensor_configuration_set_bit_depth(
+    libcamera_sensor_configuration_t* config,
+    unsigned int bit_depth
+);
+bool libcamera_sensor_configuration_validate(const libcamera_sensor_configuration_t* config);
+void libcamera_sensor_configuration_destroy(libcamera_sensor_configuration_t* config);
+
 
 libcamera_camera_t *libcamera_camera_copy(libcamera_camera_t *cam);
 void libcamera_camera_destroy(libcamera_camera_t *cam);

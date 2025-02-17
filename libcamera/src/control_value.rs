@@ -202,7 +202,7 @@ impl TryFrom<ControlValue> for String {
         match value {
             ControlValue::String(v) => Ok(v),
             _ => Err(ControlValueError::InvalidType {
-                expected: libcamera_control_type::LIBCAMERA_CONTROL_TYPE_STRING,
+                expected: crate::generated::control_types::LIBCAMERA_CONTROL_TYPE_STRING,
                 found: value.ty(),
             }),
         }
@@ -215,7 +215,7 @@ impl ControlValue {
         let num_elements = unsafe { libcamera_control_value_num_elements(val.as_ptr()) };
         let data = unsafe { libcamera_control_value_get(val.as_ptr()) };
 
-        use libcamera_control_type::*;
+        use crate::generated::control_types::*;
         match ty {
             LIBCAMERA_CONTROL_TYPE_NONE => Ok(Self::None),
             LIBCAMERA_CONTROL_TYPE_BOOL => {
@@ -254,9 +254,7 @@ impl ControlValue {
             }
             LIBCAMERA_CONTROL_TYPE_POINT => {
                 let slice = core::slice::from_raw_parts(data as *const libcamera_point_t, num_elements);
-                Ok(Self::Point(SmallVec::from_iter(
-                    slice.iter().map(|r| Point::from(*r)),
-                )))
+                Ok(Self::Point(SmallVec::from_iter(slice.iter().map(|r| Point::from(*r)))))
             }
             _ => Err(ControlValueError::UnknownType(ty)),
         }
@@ -273,11 +271,11 @@ impl ControlValue {
             ControlValue::String(v) => (v.as_ptr().cast(), v.len()),
             ControlValue::Rectangle(v) => (v.as_ptr().cast(), v.len()),
             ControlValue::Size(v) => (v.as_ptr().cast(), v.len()),
-            ControlValue::Point(v) => (v.as_ptr().cast(), v.len())
+            ControlValue::Point(v) => (v.as_ptr().cast(), v.len()),
         };
 
         let ty = self.ty();
-        let is_array = if ty == libcamera_control_type::LIBCAMERA_CONTROL_TYPE_STRING {
+        let is_array = if ty == crate::generated::control_types::LIBCAMERA_CONTROL_TYPE_STRING {
             true
         } else {
             len != 1
@@ -287,7 +285,7 @@ impl ControlValue {
     }
 
     pub fn ty(&self) -> u32 {
-        use libcamera_control_type::*;
+        use crate::generated::control_types::*;
         match self {
             ControlValue::None => LIBCAMERA_CONTROL_TYPE_NONE,
             ControlValue::Bool(_) => LIBCAMERA_CONTROL_TYPE_BOOL,

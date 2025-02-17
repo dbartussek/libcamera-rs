@@ -182,6 +182,12 @@ fn main() {
         )
         .unwrap();
 
+        std::fs::write(
+            output_dir.join("control_types.rs"),
+            generate_rust::generate_control_types(version),
+        )
+        .unwrap();
+
         println!("Parsing properties for version {version}");
         let properties = parse_control_files(&data.properties);
         std::fs::write(
@@ -194,6 +200,7 @@ fn main() {
 
 mod generate_rust {
     use libcamera_meta::{ControlSize, ControlType};
+    use semver::{Version, VersionReq};
 
     use crate::{to_c_type_name, Control};
 
@@ -402,6 +409,22 @@ mod generate_rust {
         );
 
         out
+    }
+
+    pub fn generate_control_types(version: &Version) -> String {
+        if VersionReq::parse("<0.4.0").unwrap().matches(version) {
+            include_str!("control_type_templates/up_to_0.3.rs")
+        } else if VersionReq::parse("^0.4.0").unwrap().matches(version) {
+            include_str!("control_type_templates/version_0.4.rs")
+        } else {
+            panic!(
+                r#"Version {version} has no ControlType definition yet.
+                It is __MOST LIKELY__ the same as before, but be sure to check before adding it!
+                Mismatched ControlType numbers lead to crashes at runtime
+                "#
+            )
+        }
+        .to_string()
     }
 
     pub fn generate_controls_file(controls: &[Control], ty: ControlsType) -> String {

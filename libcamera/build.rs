@@ -19,7 +19,7 @@ fn main() {
 
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
 
-    for file in ["controls.rs", "properties.rs"] {
+    for file in ["controls.rs", "control_types.rs", "properties.rs"] {
         std::fs::copy(versioned_files.join(file), out_path.join(file)).unwrap();
     }
 }

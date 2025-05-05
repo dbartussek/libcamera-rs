@@ -414,13 +414,16 @@ mod generate_rust {
     pub fn generate_control_types(version: &Version) -> String {
         if VersionReq::parse("<0.4.0").unwrap().matches(version) {
             include_str!("control_type_templates/up_to_0.3.rs")
-        } else if VersionReq::parse("^0.4.0").unwrap().matches(version) {
+        } else if VersionReq::parse("<0.6.0").unwrap().matches(version) {
             include_str!("control_type_templates/version_0.4.rs")
         } else {
             panic!(
                 r#"Version {version} has no ControlType definition yet.
                 It is __MOST LIKELY__ the same as before, but be sure to check before adding it!
                 Mismatched ControlType numbers lead to crashes at runtime
+
+                Check if ControlType numbers in libcamera-meta/src/bin/control_type_templates/
+                matches libcamera-git/include/libcamera/controls.h
                 "#
             )
         }

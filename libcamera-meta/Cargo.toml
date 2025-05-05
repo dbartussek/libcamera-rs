@@ -5,7 +5,7 @@ edition = "2021"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-git2 = "0.18.3"
+git2 = "0.20.1"
 indoc = "2.0.3"
 prettyplease = "0.2.17"
 semver = "1.0.22"

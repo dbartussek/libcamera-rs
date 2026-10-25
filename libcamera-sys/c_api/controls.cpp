@@ -1,6 +1,7 @@
 #include "controls.h"
 
 #include <libcamera/libcamera.h>
+#include <libcamera/base/span.h>
 #include <string.h>
 
 struct libcamera_control_id_map_iter {

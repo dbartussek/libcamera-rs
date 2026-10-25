@@ -25,6 +25,7 @@ struct libcamera_framebuffer_plane_info {
 
 #ifdef __cplusplus
 #include <libcamera/camera.h>
+#include <libcamera/base/span.h>
 
 typedef libcamera::FrameMetadata::Status libcamera_frame_metadata_status_t;
 typedef libcamera::FrameMetadata::Plane libcamera_frame_metadata_plane_t;

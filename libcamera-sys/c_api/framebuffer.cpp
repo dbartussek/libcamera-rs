@@ -4,6 +4,7 @@
 #include <vector>
 #include <libcamera/version.h>
 #include <libcamera/base/shared_fd.h>
+#include <libcamera/base/span.h>
 #include <unistd.h>
 
 extern "C" {

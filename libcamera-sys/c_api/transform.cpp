@@ -1,5 +1,6 @@
 #include "transform.h"
 #include <cstring>
+#include <libcamera/version.h>
 
 extern "C" {
 
@@ -20,17 +21,33 @@ libcamera_transform_t libcamera_transform_identity() {
 }
 
 libcamera_transform_t libcamera_transform_from_rotation(int angle, bool hflip, bool *success) {
+    libcamera::Transform t = libcamera::Transform::Identity;
+
+#if LIBCAMERA_VERSION_MAJOR == 0 && LIBCAMERA_VERSION_MINOR < 8
     bool ok = false;
-    libcamera::Transform t = libcamera::transformFromRotation(angle, &ok);
-    if (!ok) {
-        if (success)
-            *success = false;
-        return from_cpp(libcamera::Transform::Identity);
-    }
-    if (hflip)
+    t = libcamera::transformFromRotation(angle, &ok);
+
+    if (ok && hflip) {
         t = libcamera::Transform::HFlip * t;
-    if (success)
+    }
+    if (success) {
         *success = ok;
+    }
+
+#else
+    std::optional<libcamera::Transform> t_opt = libcamera::transformFromRotation(angle);
+    if (t_opt) {
+        t = *t_opt;
+        if (hflip) {
+            t = libcamera::Transform::HFlip * t;
+        }
+    }
+    if (success) {
+        *success = t_opt.has_value();
+    }
+
+#endif
+
     return from_cpp(t);
 }
 
@@ -55,10 +72,26 @@ libcamera_orientation_t libcamera_transform_apply_orientation(libcamera_orientat
 }
 
 libcamera_orientation_t libcamera_orientation_from_rotation(int angle, bool *success) {
+    libcamera_orientation_t ori = libcamera::Orientation::Rotate0;
+
+#if LIBCAMERA_VERSION_MAJOR == 0 && LIBCAMERA_VERSION_MINOR < 8
     bool ok = false;
-    libcamera_orientation_t ori = libcamera::orientationFromRotation(angle, &ok);
-    if (success)
+    ori = libcamera::orientationFromRotation(angle, &ok);
+    if (success) {
         *success = ok;
+    }
+
+#else
+    std::optional<libcamera_orientation_t> ori_opt = libcamera::orientationFromRotation(angle);
+    if (ori_opt) {
+        ori = *ori_opt;
+    }
+    if (success) {
+        *success = ori_opt.has_value();
+    }
+
+#endif
+
     return ori;
 }
 
